@@ -1,12 +1,43 @@
 import { useState } from "react";
 import FormInput from "./FormInput"
+import {z} from 'zod'
+import { useMemo } from "react";
 
 const CustomForm = ({config, onSubmit, isPending}) => {
 
     const initData = config.reduce((acc,field) => {
         acc[field.name] = field.defaultValue || "";
         return acc;
-    },{});  
+    },{});
+    
+    /*const formSchema = z.object(
+        config.reduce((acc, field) => {
+            if(field.zodd) acc[field.name] = field.zodd;
+            return acc;
+        }, {})
+    )*/
+
+const formSchema = useMemo(() => {
+  let schema = z.object(
+    config.reduce((acc, field) => {
+      if (field.zodd) acc[field.name] = field.zodd;
+      return acc;
+    }, {})
+  );
+
+  schema = schema.refine(
+    data => data.password === data.confirmPassword,
+    {
+      message: "Password does not match",
+      path: ["confirmPassword"]
+    }
+  );
+
+  return schema;
+}, [config]);
+
+    
+    // console.log("formschema ",formSchema);
 
     const [data, setData] = useState(initData);
     const [error, setError] = useState({});
@@ -15,31 +46,53 @@ const CustomForm = ({config, onSubmit, isPending}) => {
     const { name, value } = e.target;
     // const newData = {...data, [name]: value};
     // setData(newData);
-    setData(prev => ({
+    /*setData(prev => ({
         ...prev,
         [name]: value
-      }));
+      }));*/
+      //zod validation
+
+      const updatedData = {
+        ...data,
+        [name]: value
+      };
+    
+      setData(updatedData);
+
+     /* const result = formSchema.safeParse({
+        ...data,
+        [name] : value
+      })*/
+
+    const result = formSchema.safeParse(updatedData);
+
+      if(!result.success){
+        const fieldError = result.error.issues.find(
+            issue => issue.path[0] === name
+        )
+
+        setError(prev => ({
+            ...prev,
+            [name]: fieldError?.message
+        }))
+      }else{
+        setError(prev => ({
+            ...prev,
+            [name]: undefined
+        }))
+      }
 
     //   const field = config.find(item => item.name === name);
-    const configMap = config.reduce((acc, item) => {
+    /*const configMap = config.reduce((acc, item) => {
         acc[item.name] = item;
         return acc;
-    },{});
+    },{});*/
 
-    const field = configMap[name];
-      const message = field.validate?.(value,data);
-      /*if(message){
-        setError( prevErrors => {
-            return {...prevErrors, [name]: message};
-        })
-      }else{
-        setError( prevErrors => {
-            return {...prevErrors, [name]: undefined};
-        })
-      }*/
+    /*const field = configMap[name];
+    const message = field.validate?.(value,data);
      setError( prevErrors => {
         return {...prevErrors, [name]: message};
-     })
+     })*/
  }
 
  function handleFormSubmit(e){
@@ -54,17 +107,35 @@ const CustomForm = ({config, onSubmit, isPending}) => {
         newErrors[name] = error;
     }
   });*/
-  const newErrors = config.reduce((errors,{name,validate}) => {
+
+  const result = formSchema.safeParse(data);
+  /*const newErrors = config.reduce((errors,{name,validate}) => {
     const error = validate?.(data[name],data);
     if(error) errors[name]=error;
     return errors;
-  },{});
-  setError(newErrors);
-  if(Object.keys(newErrors).length===0){
+  },{});*/
+// zod validation added
+if(!result.success){
+    const newErrors = result.error.issues.reduce((acc, issue) => {
+        acc[issue.path[0]] = issue.message;
+        return acc;
+    },{})
+
+    setError(newErrors);
+    console.log("Errors are here", newErrors);
+    return;
+}
+
+setError({});
+console.log("Success", result.data);
+onSubmit(result.data);
+
+//   setError(newErrors);
+ /* if(Object.keys(newErrors).length===0){
     console.log(onSubmit)
     onSubmit(data);
     console.log("Success", data);
-  } else console.log("Errors are here ",newErrors);
+  } else console.log("Errors are here ",newErrors);*/
 
 
  }

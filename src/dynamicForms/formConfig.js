@@ -84,7 +84,7 @@ export const SIGN_UP_FORM_CONFIG = [
          if(val === formData.password) return null;
          return "Password does not match";
         }*/
-        zodd: z.object({
+        /*zodd: z.object({
             password: z.string().trim().min(1, "Password is required").min(6, "Password should be of at least length 6").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$/,    "Password must contain uppercase, lowercase and special character"),
             confirmPassword: z.string()
         }) .refine( data => data.password === data.confirmPassword,
@@ -92,7 +92,8 @@ export const SIGN_UP_FORM_CONFIG = [
                 message: "Password does not match",
                 path: ["confirmPassword"]
             }
-        )
+        )*/
+       zodd: z.string().trim().min(1, "confirm Password is required")
       },
       {
         id: "gender",
@@ -115,10 +116,11 @@ export const SIGN_UP_FORM_CONFIG = [
                 value: "others"
             }
         ],
-        validate: val => {
+        /*validate: val => {
             if(val) return null;
             return "Please select a gender";
-        }
+        }*/
+       zodd: z.string().trim().min(1, "Please select a gender")
       },
       {
         id: "country",
@@ -141,10 +143,11 @@ export const SIGN_UP_FORM_CONFIG = [
                 value: "canada"
             }
         ],
-        validate: val => {
+        /*validate: val => {
             if(val) return null;
             return "Please select a country";
-        }
+        }*/
+       zodd: z.string().trim().min(1, "Please select a country")
       },
       {
         id: "hobbies",
@@ -167,9 +170,10 @@ export const SIGN_UP_FORM_CONFIG = [
                 value: "coding"
             }
         ],
-        validate: val => {
+       /* validate: val => {
             if(val && val.length > 0 ) return null;
             return "Please select at least one Hobby";
-        }
+        }*/
+       zodd: z.array(z.string()).min(1, "Please select at least one Hobby")
       }
 ]
