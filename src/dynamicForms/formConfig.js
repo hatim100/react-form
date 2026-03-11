@@ -120,7 +120,8 @@ export const SIGN_UP_FORM_CONFIG = [
             if(val) return null;
             return "Please select a gender";
         }*/
-       zodd: z.string().trim().min(1, "Please select a gender")
+    //    zodd: z.string().trim().min(1, "Please select a gender")
+    zodd: z.enum(["male","female","others"],{ message: "Please select a gender" })
       },
       {
         id: "country",
@@ -147,7 +148,8 @@ export const SIGN_UP_FORM_CONFIG = [
             if(val) return null;
             return "Please select a country";
         }*/
-       zodd: z.string().trim().min(1, "Please select a country")
+    //    zodd: z.string().trim().min(1, "Please select a country")
+    zodd: z.enum(["usa","india","canada"],{ message: "Please select a country"})
       },
       {
         id: "hobbies",

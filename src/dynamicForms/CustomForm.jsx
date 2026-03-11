@@ -20,7 +20,7 @@ const CustomForm = ({config, onSubmit, isPending}) => {
 const formSchema = useMemo(() => {
   let schema = z.object(
     config.reduce((acc, field) => {
-      if (field.zodd) acc[field.name] = field.zodd;
+      if (field.zodd) acc[field.name] = field.zodd; //field name as key and correspoding zod schema as value
       return acc;
     }, {})
   );
